@@ -1,3 +1,3 @@
 resource "name" "name" {
-  name = "name"
+  name = "name";
 }
