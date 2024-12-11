@@ -1,0 +1,32 @@
+
+configs:
+  http_config:
+    file: ./httpd.conf
+
+secrets:
+  server-certificate:
+    file: ./server.cert
+
+services:
+  backend:
+    replicas: 3
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+
+    volumes:
+      - db-data:/etc/data
+
+  backup:
+    image: ubuntu
+    volumes:
+      - db-data:/var/lib/backup/data
+    entrypoint: sleep 3600 
+    configs:
+        - source: http_config
+          target: /etc/httpd/conf/httpd.conf
+    secrets:
+      - server-certificate
+
+volumes:
+  db-data:

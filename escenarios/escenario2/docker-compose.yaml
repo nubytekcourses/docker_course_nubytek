@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # API Gateway: Gestiona las solicitudes de los tenants
+  gateway:
+    build: ./app/gateway
+    ports:
+      - "8080:5000"
+    environment:
+      - FLASK_ENV=production
+    networks:
+      - saas-network
+    depends_on:
+      - users
+      - payments
+
+  # Microservicio de Usuarios
+  users:
+    build: ./app/users
+    environment:
+      - DATABASE_URI=postgres://user:password@db/tenant_db
+    networks:
+      - saas-network
+    depends_on:
+      - db
+
+  # Microservicio de Pagos
+  payments:
+    build: ./app/payments
+    environment:
+      - DATABASE_URI=postgres://payment:password@db/tenant_payment_db
+    networks:
+      - saas-network
+    depends_on:
+      - db
+
+  # Base de datos (postgres para tenants)
+  db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: tenant_db
+    networks:
+      - saas-network
+    volumes:
+      - db_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+
+# Definir redes
+networks:
+  saas-network:
+    driver: bridge
+
+# Volúmenes para persistir los datos
+volumes:
+  db_data:

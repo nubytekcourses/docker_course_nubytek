@@ -1,0 +1,28 @@
+version: "3.8"
+services:
+  gateway:
+    build: ./gateway
+    ports:
+      - "8080:5000"
+    depends_on:
+      - users
+      - payments
+      - inventory
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - gateway
+  users:
+    build: ./users
+    ports:
+      - "5001:5000"
+  payments:
+    build: ./payments
+    ports:
+      - "5002:5000"
+  inventory:
+    build: ./inventory
+    ports:
+      - "5003:5000"
